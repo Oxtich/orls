@@ -13,6 +13,7 @@
             --danger-color: #f85149;
             --success-color: #3fb950;
             --border-color: #30363d;
+            --muted-color: #8b949e;
         }
 
         body {
@@ -27,7 +28,7 @@
 
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 750px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 6px;
@@ -46,10 +47,34 @@
             gap: 10px;
         }
 
-        .input-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
+        .form-container {
+            background-color: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: var(--muted-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         input {
@@ -57,9 +82,8 @@
             border: 1px solid var(--border-color);
             border-radius: 6px;
             color: #fff;
-            padding: 8px 12px;
+            padding: 10px 12px;
             font-size: 14px;
-            flex: 1;
         }
 
         input:focus {
@@ -67,19 +91,20 @@
             border-color: var(--accent-color);
         }
 
-        button {
+        .btn-block {
+            width: 100%;
+            padding: 10px;
             background-color: #21262d;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             color: var(--accent-color);
-            padding: 8px 16px;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
         }
 
-        button:hover {
+        .btn-block:hover {
             background-color: var(--accent-color);
             color: #fff;
             border-color: var(--accent-color);
@@ -88,29 +113,52 @@
         .member-list {
             list-style: none;
             padding: 0;
-            margin: 0 0 20px 0;
+            margin: 0 0 24px 0;
         }
 
         .member-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 12px;
+            padding: 12px 16px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             background-color: rgba(255,255,255,0.02);
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .member-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .score-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
         }
 
         .member-info {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
+            flex-direction: column;
+            gap: 2px;
         }
 
-        .member-name {
-            font-weight: 500;
+        .member-fio {
+            font-weight: 600;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .member-role {
+            font-size: 13px;
+            color: var(--muted-color);
+            background: rgba(255,255,255,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            width: fit-content;
         }
 
         .score-controls {
@@ -120,26 +168,39 @@
         }
 
         .score-btn {
-            padding: 2px 8px;
-            font-size: 12px;
+            background-color: #21262d;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            padding: 6px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .score-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
         }
 
         .score-display {
             font-weight: bold;
-            min-width: 40px;
+            min-width: 50px;
             text-align: center;
-            color: #fff;
+            color: var(--accent-color);
+            font-size: 18px;
         }
 
         .btn-delete {
             color: var(--danger-color);
             border-color: var(--border-color);
+            margin-left: 10px;
         }
 
         .btn-delete:hover {
             background-color: var(--danger-color);
             border-color: var(--danger-color);
-            color: #fff;
+            color: #fff !important;
         }
 
         .total-section {
@@ -156,46 +217,56 @@
         .total-badge {
             background-color: rgba(56, 139, 253, 0.15);
             color: var(--accent-color);
-            padding: 4px 12px;
+            padding: 6px 16px;
             border-radius: 20px;
             border: 1px solid rgba(56, 139, 253, 0.4);
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🦅 Орлы: Состав команды</h1>
+    <h1>🦅 Орлы: Учёт личного состава</h1>
     
-    <!-- Форма добавления участников -->
-    <div class="input-group">
-        <input type="text" id="nameInput" placeholder="Имя участника..." onkeypress="handleKeyPress(event)">
-        <button onclick="addMember()">Добавить</button>
+    <!-- Форма добавления -->
+    <div class="form-container">
+        <div class="form-title">Добавление нового сотрудника</div>
+        <div class="input-grid">
+            <input type="text" id="lastNameInput" placeholder="Фамилия">
+            <input type="text" id="firstNameInput" placeholder="Имя">
+            <input type="text" id="roleInput" placeholder="Должность">
+        </div>
+        <button class="btn-block" onclick="addMember()">Добавить в состав</button>
     </div>
 
-    <!-- Список участников -->
-    <ul class="member-list" id="memberList">
-        <!-- Сюда будут добавляться люди -->
-    </ul>
+    <!-- Список сотрудников -->
+    <ul class="member-list" id="memberList"></ul>
 
-    <!-- Общий подсчет баллов -->
+    <!-- Общий счётчик -->
     <div class="total-section">
-        <span>Всего баллов команды:</span>
+        <span>Общая сумма баллов отдела:</span>
         <span class="total-badge" id="totalScore">0</span>
     </div>
 </div>
 
 <script>
-    // Изначальный список участников
-    let members = [
-        { id: 1, name: "Алексей", score: 10 },
-        { id: 2, name: "Иван", score: 15 }
+    // Загрузка сохранённого списка сотрудников из памяти браузера
+    let members = JSON.parse(localStorage.getItem('orly_system_data')) || [
+        { id: 1, lastName: "Иванов", firstName: "Иван", role: "Старший оператор", score: 10 }
     ];
+
+    function saveData() {
+        localStorage.setItem('orly_system_data', JSON.stringify(members));
+    }
 
     function render() {
         const list = document.getElementById('memberList');
         list.innerHTML = '';
         let total = 0;
+
+        // Сортируем: у кого больше баллов, тот выше в списке
+        members.sort((a, b) => b.score - a.score);
 
         members.forEach(member => {
             total += member.score;
@@ -204,13 +275,16 @@
             li.className = 'member-item';
             li.innerHTML = `
                 <div class="member-info">
-                    <span class="member-name">${member.name}</span>
+                    <span class="member-fio">${member.lastName} ${member.firstName}</span>
+                    <span class="member-role">${member.role || 'Должность не указана'}</span>
                 </div>
                 <div class="score-controls">
                     <button class="score-btn" onclick="changeScore(${member.id}, -1)">-1</button>
                     <span class="score-display">${member.score}</span>
                     <button class="score-btn" onclick="changeScore(${member.id}, 1)">+1</button>
-                    <button class="btn-delete score-btn" onclick="deleteMember(${member.id})">❌</button>
+                    <button class="score-btn" onclick="changeScore(${member.id}, 5)">+5</button>
+                    <button class="score-btn" onclick="changeScore(${member.id}, 10)">+10</button>
+                    <button class="score-btn btn-delete" onclick="deleteMember(${member.id})">❌</button>
                 </div>
             `;
             list.appendChild(li);
@@ -220,45 +294,42 @@
     }
 
     function addMember() {
-        const input = document.getElementById('nameInput');
-        const name = input.value.trim();
-        if (name === '') return;
+        const lastName = document.getElementById('lastNameInput').value.trim();
+        const firstName = document.getElementById('firstNameInput').value.trim();
+        const role = document.getElementById('roleInput').value.trim();
+
+        if (lastName === '' || firstName === '') {
+            alert('Пожалуйста, заполните как минимум Фамилию и Имя сотрудника.');
+            return;
+        }
 
         const newMember = {
             id: Date.now(),
-            name: name,
+            lastName: lastName,
+            firstName: firstName,
+            role: role,
             score: 0
         };
 
         members.push(newMember);
-        input.value = '';
-        render();
-    }
 
-    function handleKeyPress(event) {
-        if (event.key === 'Enter') {
-            addMember();
-        }
+        // Очищаем поля ввода
+        document.getElementById('lastNameInput').value = '';
+        document.getElementById('firstNameInput').value = '';
+        document.getElementById('roleInput').value = '';
+
+        saveData();
+        render();
     }
 
     function deleteMember(id) {
-        members = members.filter(m => m.id !== id);
-        render();
+        if(confirm("Вы уверены, что хотите удалить этого сотрудника из списка?")) {
+            members = members.filter(m => m.id !== id);
+            saveData();
+            render();
+        }
     }
 
     function changeScore(id, amount) {
         const member = members.find(m => m.id === id);
         if (member) {
-            member.score += amount;
-            // Баллы не могут быть меньше 0
-            if (member.score < 0) member.score = 0; 
-            render();
-        }
-    }
-
-    // Первоначальный запуск
-    render();
-</script>
-
-</body>
-</html>
