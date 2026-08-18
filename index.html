@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Орлы — Состав и Баллы</title>
+    <title>ОРЛС — Состав и Баллы</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -212,6 +212,7 @@
             font-size: 18px;
             font-weight: bold;
             color: #fff;
+            margin-bottom: 20px;
         }
 
         .total-badge {
@@ -222,12 +223,26 @@
             border: 1px solid rgba(56, 139, 253, 0.4);
             font-size: 20px;
         }
+
+        .stats-textarea {
+            width: 100%;
+            height: 140px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #a3b3c6;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 13px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🦅 Орлы: Учёт личного состава</h1>
+    <h1>🦅 ОРЛС: Учёт личного состава</h1>
     
     <!-- Форма добавления -->
     <div class="form-container">
@@ -248,39 +263,58 @@
         <span>Общая сумма баллов отдела:</span>
         <span class="total-badge" id="totalScore">0</span>
     </div>
+
+    <!-- Текстовое поле статики -->
+    <div class="form-title">Текстовый отчет (Статика)</div>
+    <textarea class="stats-textarea" id="statsOutput" readonly placeholder="Здесь будет готовый текст для копирования..."></textarea>
 </div>
 
 <script>
-    // Загрузка сохранённого списка сотрудников из памяти браузера
-    let members = JSON.parse(localStorage.getItem('orly_system_data')) || [
-        { id: 1, lastName: "Иванов", firstName: "Иван", role: "Старший оператор", score: 10 }
-    ];
+    // Безопасная загрузка данных во избежание сбоев из-за старых форматов структуры
+    let members = [];
+    try {
+        const localData = localStorage.getItem('orly_system_v2');
+        if (localData) {
+            members = JSON.parse(localData);
+        } else {
+            members = [];
+        }
+    } catch(e) {
+        members = [];
+    }
 
     function saveData() {
-        localStorage.setItem('orly_system_data', JSON.stringify(members));
+        localStorage.setItem('orly_system_v2', JSON.stringify(members));
     }
 
     function render() {
         const list = document.getElementById('memberList');
         list.innerHTML = '';
         let total = 0;
+        let statsText = "ОТЧЕТ ПО БАЛЛАМ ОРЛС:\n====================\n";
 
-        // Сортируем: у кого больше баллов, тот выше в списке
+        // Сортируем: у кого больше баллов, тот выше
         members.sort((a, b) => b.score - a.score);
 
         members.forEach(member => {
-            total += member.score;
+            const lName = member.lastName || "";
+            const fName = member.firstName || "";
+            const uRole = member.role || "Без должности";
+            const uScore = member.score || 0;
+
+            total += uScore;
+            statsText += `${lName} ${fName} (${uRole}) — ${uScore} баллов\n`;
             
             const li = document.createElement('li');
             li.className = 'member-item';
             li.innerHTML = `
                 <div class="member-info">
-                    <span class="member-fio">${member.lastName} ${member.firstName}</span>
-                    <span class="member-role">${member.role || 'Должность не указана'}</span>
+                    <span class="member-fio">${lName} ${fName}</span>
+                    <span class="member-role">${uRole}</span>
                 </div>
                 <div class="score-controls">
                     <button class="score-btn" onclick="changeScore(${member.id}, -1)">-1</button>
-                    <span class="score-display">${member.score}</span>
+                    <span class="score-display">${uScore}</span>
                     <button class="score-btn" onclick="changeScore(${member.id}, 1)">+1</button>
                     <button class="score-btn" onclick="changeScore(${member.id}, 5)">+5</button>
                     <button class="score-btn" onclick="changeScore(${member.id}, 10)">+10</button>
@@ -290,46 +324,10 @@
             list.appendChild(li);
         });
 
+        statsText += `====================\nИТОГО БАЛЛОВ: ${total}`;
+
         document.getElementById('totalScore').innerText = total;
+        document.getElementById('statsOutput').value = members.length > 0 ? statsText : "Список сотрудников пуст.";
     }
 
     function addMember() {
-        const lastName = document.getElementById('lastNameInput').value.trim();
-        const firstName = document.getElementById('firstNameInput').value.trim();
-        const role = document.getElementById('roleInput').value.trim();
-
-        if (lastName === '' || firstName === '') {
-            alert('Пожалуйста, заполните как минимум Фамилию и Имя сотрудника.');
-            return;
-        }
-
-        const newMember = {
-            id: Date.now(),
-            lastName: lastName,
-            firstName: firstName,
-            role: role,
-            score: 0
-        };
-
-        members.push(newMember);
-
-        // Очищаем поля ввода
-        document.getElementById('lastNameInput').value = '';
-        document.getElementById('firstNameInput').value = '';
-        document.getElementById('roleInput').value = '';
-
-        saveData();
-        render();
-    }
-
-    function deleteMember(id) {
-        if(confirm("Вы уверены, что хотите удалить этого сотрудника из списка?")) {
-            members = members.filter(m => m.id !== id);
-            saveData();
-            render();
-        }
-    }
-
-    function changeScore(id, amount) {
-        const member = members.find(m => m.id === id);
-        if (member) {
