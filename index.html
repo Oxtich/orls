@@ -270,10 +270,14 @@
 </div>
 
 <script>
-    // Безопасная загрузка данных во избежание сбоев из-за старых форматов структуры
+    // Ключ для хранения абсолютно новой структуры данных
+    const STORAGE_KEY = 'orls_final_system_v3';
+    
     let members = [];
+    
+    // Пробуем безопасно загрузить данные
     try {
-        const localData = localStorage.getItem('orly_system_v2');
+        const localData = localStorage.getItem(STORAGE_KEY);
         if (localData) {
             members = JSON.parse(localData);
         } else {
@@ -284,7 +288,7 @@
     }
 
     function saveData() {
-        localStorage.setItem('orly_system_v2', JSON.stringify(members));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
     }
 
     function render() {
@@ -293,7 +297,7 @@
         let total = 0;
         let statsText = "ОТЧЕТ ПО БАЛЛАМ ОРЛС:\n====================\n";
 
-        // Сортируем: у кого больше баллов, тот выше
+        // Сортировка: у кого больше баллов, тот выше
         members.sort((a, b) => b.score - a.score);
 
         members.forEach(member => {
@@ -327,7 +331,3 @@
         statsText += `====================\nИТОГО БАЛЛОВ: ${total}`;
 
         document.getElementById('totalScore').innerText = total;
-        document.getElementById('statsOutput').value = members.length > 0 ? statsText : "Список сотрудников пуст.";
-    }
-
-    function addMember() {
